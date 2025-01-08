@@ -1,6 +1,7 @@
 from photonicdrivers.SNSPDs.FilesFromManufacturer.WebSQControl import WebSQControl
+from photonicdrivers.Abstract.Connectable import Connectable
 
-class SNSPD_SQ_Driver():
+class SNSPD_SQ_Driver(Connectable):
     def __init__(self,_ip_string: str, _control_port: int=12000, _counts_port: int=12345) -> None:
         self.ipAddress = _ip_string
         self.controlPort = _control_port
@@ -13,6 +14,12 @@ class SNSPD_SQ_Driver():
 
     def disconnect(self):        
         self.websq.close()
+
+    def is_connected(self):    
+        try:    
+            return self.websq.connected
+        except: 
+            return False
 
     def getNumberOfDetectors(self) -> int:
         return self.websq.get_number_of_detectors()
@@ -30,6 +37,12 @@ class SNSPD_SQ_Driver():
         data = self.websq.acquire_cnts(numberOfMeasurements)
         print(data)
         return data
+    
+    def setMeasurementPeriod(self, integrationtime_ms:int) -> None:
+        self.websq.set_measurement_periode(integrationtime_ms)
+
+    def getMeasurementPeriod(self) -> float:
+        return self.websq.get_measurement_periode()
 
 
 

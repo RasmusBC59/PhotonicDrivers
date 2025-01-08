@@ -8,15 +8,21 @@ import numpy as np
 import numpy as np
 import matplotlib.pyplot as plt
 from photonicdrivers.utils.Range import Range
-sys.path.append(r"C:\\Program Files\\Andor SDK\\Python\\pyAndorSpectrograph")
-sys.path.append(r"C:\\Program Files\\Andor SDK\\Python\\pyAndorSDK2")
-from pyAndorSDK2 import atmcd, atmcd_codes, atmcd_errors
-codes = atmcd_codes
+
+try:
+    sys.path.append(r"C:\\Program Files\\Andor SDK\\Python\\pyAndorSpectrograph")
+    sys.path.append(r"C:\\Program Files\\Andor SDK\\Python\\pyAndorSDK2")
+    from pyAndorSDK2 import atmcd, atmcd_codes, atmcd_errors
+    codes = atmcd_codes
+except:
+    print("Andor Solis is not installed ")
+
+
 
 class Andor_Newton:
 
     def __init__(self) -> None:
-        self.camera = atmcd("C://Program Files/Andor SDK")
+        self.camera = atmcd(userPath="C:\\Program Files\\Andor SDK\\Python\\pyAndorSDK2\\pyAndorSDK2\\libs\\Windows\\64")
         self.num_pixel_y = 200
         self.num_pixel_x = 1600
 
@@ -28,6 +34,7 @@ class Andor_Newton:
         self.set_temperature(-70)
         self.cooler_on()
         self.set_exposure_time_s(0.1)
+        self.roi = [49,53]
 
     def set_exposure_time_s(self, exposure_time_s):
         self.camera.SetExposureTime(exposure_time_s)
@@ -43,11 +50,16 @@ class Andor_Newton:
         (ret, arr, validfirst, validlast) = self.camera.GetImages(1,1, size=self.num_pixel_x*self.num_pixel_y)
         image = np.flip(np.flip(np.reshape(arr, (self.num_pixel_y, self.num_pixel_x)), axis=1),axis=0)
         return image
-    
+
+    def get_ROI_counts(self):
+        '''return an array of counts from the image where we sum all rows within the region of interest (ROI)'''
+        image = self.get_image()
+        return np.sum(image[self.roi[0]:self.roi[1]], axis=0)/(self.roi[1] - self.roi[0])
+
     def get_trace(self):
         image = self.get_image()
         trace = np.sum(image, axis=0)
-        return trace
+        return trace.tolist()
 
     def cooler_on(self):
         self.camera.CoolerON()
@@ -88,7 +100,7 @@ class Andor_Newton:
             print("Gain out of range: " + gain_range)
 
     def disconnect(self):
-        pass
+        self.camera.AbortAcquisition()
     
     def is_connected(self):
         return bool(self.get_serial_number())

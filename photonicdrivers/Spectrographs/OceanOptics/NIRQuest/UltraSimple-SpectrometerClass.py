@@ -4,11 +4,31 @@ Created on Fri Aug 30 10:42:47 2024
 
 @author: NQCPW
 """
-
+import os
 from oceandirect.od_logger import od_logger
 from oceandirect.OceanDirectAPI import OceanDirectAPI, OceanDirectError, Spectrometer, FeatureID
 
-from time import sleep
+from time import sleep, ctime
+
+# =============================================================================
+# CREATE SAVE FOLDER
+# =============================================================================
+
+root_folder = r'\\unicph.domain\groupdir\SCI-NBI-NQCP\Phot\rawData\B036001A03_FirstSiliconChip1326nm\char'
+
+  
+now = ctime().replace(":",".")
+
+try:
+    save_folder = root_folder + '\\' + now 
+    os.makedirs(save_folder)
+except FileExistsError:
+    # directory already exists
+    pass
+
+# =============================================================================
+# SCRIPT STARTS
+# =============================================================================
 
 logger = od_logger()
 
@@ -17,7 +37,7 @@ def get_spec_formatted(device, sn):
         #device.set_electric_dark_correction_usage(False);
         #device.set_nonlinearity_correction_usage(False);
 
-        integration_time = 0.1 #time in s
+        integration_time = 1 #time in s
         device.set_integration_time(int(integration_time*1e6));
 
         print("Reading spectra for dev s/n = %s" % sn, flush=True)
@@ -49,7 +69,7 @@ if __name__ == '__main__':
             print("First Device : %d       " % id)
             print("Serial Number: %s     \n" % serialNumber)
             
-            temp_C_before = device.Advanced.get_tec_temperature_degrees_C()
+            # temp_C_before = device.Advanced.get_tec_temperature_degrees_C()
             # device.Advanced.set_temperature_setpoint_degrees_C(-10.0)
             # device.Advanced.set_tec_enable(True)
             
@@ -60,8 +80,8 @@ if __name__ == '__main__':
             test_spectra = get_spec_formatted(device, serialNumber)
             test_wavelengths = device.get_wavelengths()
             
-            supported = device.is_feature_id_enabled(FeatureID.THERMOELECTRIC)
-            print("gpio(device): GPIO feature supported  = %s" % supported)
+            # supported = device.is_feature_id_enabled(FeatureID.THERMOELECTRIC)
+            # print("gpio(device): GPIO feature supported  = %s" % supported)
             
             # test = device.Advanced.is_light_source_enabled()
           
@@ -71,19 +91,29 @@ if __name__ == '__main__':
 
     print("**** exiting program ****")
 
+# =============================================================================
+# PLOT, LOAD AND SAVE
+# =============================================================================
+
+import pandas 
 import matplotlib.pyplot as plt
+
+
+bg_file = pandas.read_csv(r'N:\SCI-NBI-NQCP\Phot\rawData\B036001A03_FirstSiliconChip1326nm\char\Tue Oct  1 14.09.25 2024\OA_background.csv')
+
+bg_counts = bg_file['Counts [#]']
 
 
 plt.close('all')
 
 plt.figure()
-plt.plot(test_wavelengths, test_spectra)
+plt.plot(test_wavelengths, test_spectra-bg_counts)
 plt.xlabel('Wavelength [nm]')
 plt.ylabel('Counts')
 
-import pandas 
+
 
 # df =  pandas.DataFrame({'Wavelength [nm]': test_wavelengths,
 #               'Counts [#]': test_spectra})
-# df.to_csv('NKT_off.csv', index=False)  
+# df.to_csv(os.path.join(save_folder, 'OA_background.csv'), index=False)  
 

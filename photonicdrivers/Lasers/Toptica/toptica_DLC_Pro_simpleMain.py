@@ -2,7 +2,6 @@ from photonicdrivers.Lasers.Toptica.Toptica_DLC_Pro_Driver import Toptica_DLC_PR
 
 laser = Toptica_DLC_PRO_Driver()
 laser.connect()
-laser.play_welcome()
 laser.set_wavelength(940)
 laser.set_diode(True)
 laser.set_power_stabilization(True)

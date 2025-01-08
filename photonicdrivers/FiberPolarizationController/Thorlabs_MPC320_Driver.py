@@ -5,13 +5,15 @@ import socket
 
 # To use this driver the software Kinesis from Thorlabs must be installed to match the following
 # Also consider attaching the path to settings.JSON file to access the code
-clr.AddReference("C:\\Program Files\\Thorlabs\\Kinesis\\Thorlabs.MotionControl.DeviceManagerCLI.dll")
-clr.AddReference("C:\\Program Files\\Thorlabs\\Kinesis\\Thorlabs.MotionControl.GenericMotorCLI.dll")
-clr.AddReference("C:\\Program Files\\Thorlabs\\Kinesis\\ThorLabs.MotionControl.PolarizerCLI.dll")
-
-from Thorlabs.MotionControl.DeviceManagerCLI import *
-from Thorlabs.MotionControl.GenericMotorCLI import *
-from Thorlabs.MotionControl.PolarizerCLI import *
+try:
+    clr.AddReference("C:\\Program Files\\Thorlabs\\Kinesis\\Thorlabs.MotionControl.DeviceManagerCLI.dll")
+    clr.AddReference("C:\\Program Files\\Thorlabs\\Kinesis\\Thorlabs.MotionControl.GenericMotorCLI.dll")
+    clr.AddReference("C:\\Program Files\\Thorlabs\\Kinesis\\ThorLabs.MotionControl.PolarizerCLI.dll")
+    from Thorlabs.MotionControl.DeviceManagerCLI import *
+    from Thorlabs.MotionControl.GenericMotorCLI import *
+    from Thorlabs.MotionControl.PolarizerCLI import *
+except:
+    print("Thorlabs Kinsesis not installed or installed in the wrong location")
 from System import Decimal
 
 from photonicdrivers.Abstract.Connectable import Connectable

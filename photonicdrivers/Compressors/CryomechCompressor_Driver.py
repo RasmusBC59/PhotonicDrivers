@@ -6,31 +6,36 @@ import datetime
 
 
 class CryomechCompressor_Driver:
-    def __init__(self, ip_address, port=502, timeout=10):
-        self.ip_address = ip_address
-        self.port = port
-
-        self.comm = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.comm.connect((self.ip_address, self.port))
-        self.comm.settimeout(timeout)
+    def __init__(self, _ip_address, _port=502, _timeout=10):
+        self.ip_address = _ip_address
+        self.port = _port
+        self.timeout = _timeout
 
 
  ##################### HIGH LEVEL SOURCE METHODS ###########################
- # Get relevant parameters in one go to minimize communication
-
+ 
     def get_data_lst(self):
         """
         Returns list of specified values (coolant in/out temp, oil/helium temp, low/high pressure, delta pressure average, motor current)
         """
         self.comm.sendall(self._buildRegistersQuery())
         data = self.comm.recv(1024)
-        data_flag, brd = self._breakdownReplyData(data)
-   
-
-        return data_flag, brd['Coolant In Temp'],brd['Coolant Out Temp'],brd['Oil Temp'],brd['Helium Temp'], brd['Low Pressure'], brd['High Pressure'], brd['Delta Pressure Average'], brd['Motor Current']
+        data_readout_failed, brd = self._breakdownReplyData(data)
+        if data_readout_failed:
+            return None
+        else:
+            return data_readout_failed, brd['Coolant In Temp'],brd['Coolant Out Temp'],brd['Oil Temp'],brd['Helium Temp'], brd['Low Pressure'], brd['High Pressure'], brd['Delta Pressure Average'], brd['Motor Current']
 
 
   ##################### LOW LEVEL SOURCE METHODS ###########################
+
+    def connect(self):
+        self.comm = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.comm.connect((self.ip_address, self.port))
+        self.comm.settimeout(self.timeout)
+
+    def disconnect(self):
+        self.comm.close()
 
     def get_operating_state(self) -> str:
         return self._get_data('Operating State') 
@@ -87,9 +92,12 @@ class CryomechCompressor_Driver:
         """
         self.comm.sendall(self._buildRegistersQuery())
         data = self.comm.recv(1024)
-        data_flag, brd = self._breakdownReplyData(data)
+        data_readout_failed, brd = self._breakdownReplyData(data)
 
-        return brd[specific_data]
+        if data_readout_failed:
+            return None
+        else:
+            return brd[specific_data]
 
 
     def _buildRegistersQuery(self):
@@ -278,14 +286,14 @@ class CryomechCompressor_Driver:
                 else:
                     data[key] = struct.unpack(">f", wkrBytes)[0]
 
-            data_flag = False
+            data_readout_failed = False
 
         except:
-            data_flag = True
+            data_readout_failed = True
             print(
                 "Compressor output could not be converted to numbers."
                 "Skipping this data block. Bad output string is {}".format(rawdata)
             )
 
-        return data_flag, data
+        return data_readout_failed, data
 

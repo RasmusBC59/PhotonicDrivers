@@ -45,7 +45,7 @@ def synchronized_method(method, *args, **kws):
 
 
 def _synchronized_method(method):
-    return decorate(method, _synchronized_method)
+    return decorate(method, _synchronized_method) # type: ignore
 
 
 def synchronized_with_attr(lock_name):

@@ -139,12 +139,7 @@ class Thorlabs_PM100D_Driver(Thorlabs_Power_Meter_Driver):
         self._write('MEAS:POW?')
         return float(self._read())
 
-<<<<<<< Updated upstream
     def get_wavelength(self) -> float:
-=======
-
-    def get_power_meter_wavelength(self) -> float:
->>>>>>> Stashed changes
         """
         Retrieves the current wavelength setting of the power meter.
 

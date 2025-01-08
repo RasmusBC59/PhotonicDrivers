@@ -45,7 +45,10 @@ class Picus_Driver(Connectable):
         self.connection.close()
 
     def is_connected(self) -> bool:
-        return bool(self.getRuntimeAmplifier())
+        try:
+            return bool(self.getRuntimeAmplifier())
+        except:
+            return False
         
     def getRuntimeAmplifier(self) -> str:
         command = "Measure:Runtime:Amplifier?"
@@ -66,14 +69,14 @@ class Picus_Driver(Connectable):
         command = "Laser:Enable " + str(int(state))
         response = self._query(command)
         if response != "ACK":
-            print("The command '" + command + "' failed. Respone was: " + response)
+            print("The command '" + command + "' failed. Response was: " + response)
         return response
 
     def setWavelength(self, wavelength_nm: float) -> None:
         command = "Laser:Wavelength " + str(wavelength_nm)
         response = self._query(command)
         if response != "ACK":
-            print("The command '" + command + "' failed. Respone was: " + response)
+            print("The command '" + command + "' failed. Response was: " + response)
         return response
         
 
@@ -109,4 +112,5 @@ class Picus_Driver(Connectable):
     def _query(self, command: str) -> str:
         self._write(command)
         response = self._read()
+        print("Command: " + str(command) + ", reponse: " + str(response))
         return response

@@ -3,6 +3,7 @@
 import pyvisa
 
 from photonicdrivers.Lasers.Picus.Picus_Driver import Picus_Driver
+# from Sysstatus_external import sys_status
 
 rm = pyvisa.ResourceManager()
 print("Available devices: ")
@@ -17,7 +18,7 @@ laser.connect()
 
 print("Enable state: " + str(laser.getEnabledState()))
 
-laser.setEnabledState(True)
+laser.setEnabledState(False)
 print("Enable state: " + str(laser.getEnabledState()))
 
 print("Wavelength: " + str(laser.getWavelength()))

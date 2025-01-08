@@ -138,11 +138,15 @@ class ElliptecRotationStage:
 
 
 
-serial_connection = serial.Serial(port='COM3', baudrate=9600, stopbits=1, parity='N', timeout=0.05)
+serial_connection = serial.Serial(port='COM8', baudrate=9600, stopbits=1, parity='N', timeout=0.05)
 time.sleep(2)
-QWP915c = ElliptecRotationStage(serial_connection=serial_connection, offset=-8529, address=1)
+QWP915c = ElliptecRotationStage(serial_connection=serial_connection, offset=-8529, address="A")
 QWP915c.set_angle(90)
-HWP915c = ElliptecRotationStage(serial_connection=serial_connection, offset=-8529, address=2)
+HWP915c = ElliptecRotationStage(serial_connection=serial_connection, offset=-8529, address="B")
+HWP915c.set_angle(0)
+QWP915c = ElliptecRotationStage(serial_connection=serial_connection, offset=-8529, address="C")
+QWP915c.set_angle(90)
+HWP915c = ElliptecRotationStage(serial_connection=serial_connection, offset=-8529, address="D")
 HWP915c.set_angle(0)
 
 serial_connection.close()

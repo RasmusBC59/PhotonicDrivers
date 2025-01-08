@@ -35,7 +35,9 @@ class Thorlabs_PM103E_Driver(Thorlabs_Power_Meter_Driver):
         """
         Closes the connection to the Thorlabs PM103E power meter.
         """
-        self.power_meter.close()
+        #self.power_meter.close()
+
+        print("Power meter cannot close in same session due to an error in PyVisa. To be fixed")
 
     def is_connected(self) -> bool:
         """
@@ -46,8 +48,6 @@ class Thorlabs_PM103E_Driver(Thorlabs_Power_Meter_Driver):
         """
         try:
             return bool(self.get_idn()) is not None
-        except ConnectionError:
-            return False
         except Exception:
             return False
 
